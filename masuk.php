@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . '/includes/site_init.php';
 
-// Sudah masuk? Arahkan sesuai peran.
-if (!empty($_SESSION['admin_id'])) {
-    header('Location: admin/index.php');
-    exit;
-}
+// Pelanggan yang sudah masuk tak perlu login lagi.
+// Sesi admin TIDAK memaksa redirect — cukup ditampilkan sebagai info,
+// supaya halaman pelanggan tetap bisa diakses tanpa terlempar ke dashboard.
 if (pelanggan_masuk()) {
     header('Location: akun.php');
     exit;
 }
+$sedangAdmin = !empty($_SESSION['admin_id']);
 
 $lanjut = $_GET['lanjut'] ?? $_POST['lanjut'] ?? '';
 // Hanya izinkan redirect ke file lokal (hindari open redirect)
@@ -58,6 +57,16 @@ require __DIR__ . '/includes/site_top.php';
     <p style="color:var(--ink-muted);font-size:13.5px;margin:0 0 20px">
       Satu pintu untuk pelanggan &amp; admin — akun admin otomatis diarahkan ke panel admin.
     </p>
+
+    <?php if ($sedangAdmin): ?>
+      <div class="pesan-info" style="margin-top:0;background:var(--primary-soft);color:var(--primary-dark)">
+        Kamu sedang masuk sebagai <b>admin</b>.
+        <a href="admin/index.php" style="font-weight:700;color:var(--primary-dark);text-decoration:underline">Buka Panel Admin</a>
+        atau
+        <a href="admin/logout.php" style="font-weight:700;color:var(--primary-dark);text-decoration:underline">keluar admin</a>,
+        lalu masuk sebagai pelanggan di bawah.
+      </div>
+    <?php endif; ?>
 
     <?php if ($error): ?><div class="pesan-info pesan-gagal" style="margin-top:0"><?= e($error) ?></div><?php endif; ?>
 
