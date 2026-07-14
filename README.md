@@ -88,17 +88,3 @@ sebelum dipakai sungguhan (Admin → Akun Kasir / tabel admin).
 4. Pastikan `storage/` & `bootstrap/cache/` writable oleh PHP-FPM.
 
 ---
-
-# Kerangka Penulisan Ilmiah (Daftar Isi)
-
-**Judul:** *Pengembangan Sistem Informasi Pemesanan Menu pada Cafe Lorong Kopi
-Berbasis Web Menggunakan Framework Laravel dengan QR Code Meja*
-
-## HALAMAN AWAL
-- Halaman Judul
-- Lembar Pengesahan
-- Pernyataan Keaslian
-- Abstrak (Indonesia & Inggris) — kata kunci: sistem informasi, pemesanan menu, Laravel, QR Code, web
-- Kata Pengantar
-- Daftar Isi · Daftar Gambar · Daftar Tabel · Daftar Lampiran
-
