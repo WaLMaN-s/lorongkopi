@@ -36,6 +36,9 @@
       <div id="kotakInfo" style="background:var(--bg);border-radius:14px;padding:18px;margin-bottom:14px">
         <i class="bi bi-qrcode" style="font-size:34px;color:var(--primary)"></i>
         <div id="statusKamera" style="font-size:12.5px;color:var(--ink-muted);margin-top:8px">Meminta izin kamera…</div>
+        <button type="button" id="btnKamera" class="btn-utama" style="display:none;margin-top:12px">
+          <i class="bi bi-camera"></i> Nyalakan Kamera
+        </button>
       </div>
 
       <?php if ($error): ?><div class="pesan-info pesan-gagal" style="text-align:left"><?= e($error) ?></div><?php endif; ?>
@@ -118,21 +121,42 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
+const btnKamera = document.getElementById('btnKamera');
+
+function gagalKamera(err) {
+  btnKamera.style.display = '';
+  if (err && err.name === 'NotAllowedError') {
+    statusKam.innerHTML = 'Izin kamera <b>diblokir browser</b>.<br>'
+      + 'Ketuk ikon <i class="bi bi-lock-fill"></i> / <i class="bi bi-camera-video-off"></i> di address bar '
+      + '&rarr; <b>Izinkan Kamera</b>, lalu tekan tombol di bawah.';
+  } else if (err && err.name === 'NotFoundError') {
+    statusKam.textContent = 'Kamera tidak ditemukan di perangkat ini — masukkan kode meja di bawah.';
+  } else if (err && err.name === 'NotReadableError') {
+    statusKam.textContent = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu lalu coba lagi.';
+  } else {
+    statusKam.textContent = 'Kamera tidak bisa diakses (' + (err && err.name ? err.name : 'tidak diketahui')
+      + '). Coba lagi, atau masukkan kode meja di bawah.';
+  }
+}
+
 async function mulaiKamera() {
   if (!navigator.mediaDevices || !window.isSecureContext) {
     statusKam.textContent = 'Kamera tidak tersedia di browser ini — scan pakai aplikasi kamera HP, atau masukkan kode meja di bawah.';
     return;
   }
+  statusKam.textContent = 'Meminta izin kamera…';
+  aktif = true;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
   } catch (e) {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: true });
     } catch (e2) {
-      statusKam.textContent = 'Akses kamera ditolak — izinkan kamera di address bar, scan pakai aplikasi kamera HP, atau masukkan kode meja di bawah.';
+      gagalKamera(e2);
       return;
     }
   }
+  btnKamera.style.display = 'none';
   video.srcObject = stream;
   await video.play();
   videoWrap.style.display = '';
@@ -140,6 +164,7 @@ async function mulaiKamera() {
   requestAnimationFrame(tick);
 }
 
+btnKamera.addEventListener('click', mulaiKamera);
 mulaiKamera();
 </script>
 <?php endif; ?>
