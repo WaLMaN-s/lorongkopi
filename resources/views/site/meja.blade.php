@@ -23,12 +23,19 @@
     <h1 style="font-size:19px;font-weight:800;margin:0 0 4px"><?= e($namaToko) ?></h1>
 
     <?php if (!$meja): ?>
-      <p style="color:var(--ink-muted);font-size:13.5px;margin:0 0 22px">
-        Pesan langsung dari mejamu.<br>Scan QR code yang ada di atas meja untuk mulai.
+      <p style="color:var(--ink-muted);font-size:13.5px;margin:0 0 18px">
+        Pesan langsung dari mejamu.<br>Arahkan kamera ke QR code yang ada di atas meja.
       </p>
-      <div style="background:var(--bg);border-radius:14px;padding:18px;margin-bottom:18px">
+
+      <div id="videoWrap" style="position:relative;background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px;display:none">
+        <video id="video" style="width:100%;display:block" playsinline muted></video>
+        <div style="position:absolute;inset:0;border:3px solid rgba(255,255,255,.45);margin:16%;border-radius:12px;pointer-events:none"></div>
+      </div>
+      <canvas id="canvas" style="display:none"></canvas>
+
+      <div id="kotakInfo" style="background:var(--bg);border-radius:14px;padding:18px;margin-bottom:14px">
         <i class="bi bi-qrcode" style="font-size:34px;color:var(--primary)"></i>
-        <div style="font-size:12.5px;color:var(--ink-muted);margin-top:8px">Arahkan kamera HP ke QR code di meja kamu</div>
+        <div id="statusKamera" style="font-size:12.5px;color:var(--ink-muted);margin-top:8px">Meminta izin kamera…</div>
       </div>
 
       <?php if ($error): ?><div class="pesan-info pesan-gagal" style="text-align:left"><?= e($error) ?></div><?php endif; ?>
@@ -69,5 +76,72 @@
     <?php endif; ?>
   </div>
 </div>
+
+<?php if (!$meja): ?>
+<script src="assets/js/jsqr.js"></script>
+<script>
+/* Scanner QR meja langsung dari halaman (kamera belakang HP). */
+const video     = document.getElementById('video');
+const canvas    = document.getElementById('canvas');
+const ctx       = canvas.getContext('2d', { willReadFrequently: true });
+const videoWrap = document.getElementById('videoWrap');
+const statusKam = document.getElementById('statusKamera');
+let stream = null, aktif = true;
+
+function kodeDariQr(teks) {
+  // QR meja berisi URL meja.php?kode=... — ambil kodenya saja (hindari redirect ke luar).
+  try {
+    const u = new URL(teks);
+    const k = u.searchParams.get('kode');
+    if (k) return k;
+  } catch (e) { /* bukan URL, anggap teks = kode */ }
+  return teks.trim();
+}
+
+function ketemu(teks) {
+  aktif = false;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  statusKam.textContent = 'QR terbaca! Mengarahkan…';
+  location.href = 'meja.php?kode=' + encodeURIComponent(kodeDariQr(teks));
+}
+
+function tick() {
+  if (!aktif) return;
+  if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const hasil = jsQR(img.data, img.width, img.height);
+    if (hasil && hasil.data) { ketemu(hasil.data); return; }
+  }
+  requestAnimationFrame(tick);
+}
+
+async function mulaiKamera() {
+  if (!navigator.mediaDevices || !window.isSecureContext) {
+    statusKam.textContent = 'Kamera tidak tersedia di browser ini — scan pakai aplikasi kamera HP, atau masukkan kode meja di bawah.';
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  } catch (e) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    } catch (e2) {
+      statusKam.textContent = 'Akses kamera ditolak — izinkan kamera di address bar, scan pakai aplikasi kamera HP, atau masukkan kode meja di bawah.';
+      return;
+    }
+  }
+  video.srcObject = stream;
+  await video.play();
+  videoWrap.style.display = '';
+  statusKam.textContent = 'Arahkan kamera ke QR code di meja kamu.';
+  requestAnimationFrame(tick);
+}
+
+mulaiKamera();
+</script>
+<?php endif; ?>
 </body>
 </html>
