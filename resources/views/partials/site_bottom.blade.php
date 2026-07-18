@@ -72,11 +72,16 @@ $navLinks = [
   </div>
 
   <button class="btn-utama btn-blok" id="shSimpan" style="margin-top:14px">
-    Tambah ke Keranjang — <span id="shTotal"></span>
+    <?php if (meja_aktif()): ?>
+      Tambah ke Keranjang — <span id="shTotal"></span>
+    <?php else: ?>
+      <i class="bi bi-qr-code-scan"></i> Scan QR Meja untuk Memesan
+    <?php endif; ?>
   </button>
 </div>
 
 <script>
+const MEJA_AKTIF = <?= meja_aktif() ? 'true' : 'false' ?>;
 function tampilkanToast(pesan) {
   const t = document.getElementById('toastKedai');
   t.textContent = pesan;
@@ -103,7 +108,8 @@ function hitungTotal() {
   if (!itemAktif) return;
   let harga = itemAktif.harga;
   if (itemAktif.minuman && document.querySelector('input[name=sh_ukuran]:checked')?.value === 'Large') harga += 5000;
-  document.getElementById('shTotal').textContent = fmt(harga * qty);
+  const elTotal = document.getElementById('shTotal'); // tidak ada saat belum scan meja
+  if (elTotal) elTotal.textContent = fmt(harga * qty);
   document.getElementById('shQty').textContent = qty;
 }
 
@@ -140,6 +146,7 @@ sheet.addEventListener('change', hitungTotal);
 
 document.getElementById('shSimpan').addEventListener('click', async () => {
   if (!itemAktif) return;
+  if (!MEJA_AKTIF) { location.href = 'meja.php'; return; }
   const p = new URLSearchParams({ aksi: 'tambah', menu_id: itemAktif.id, jumlah: qty });
   if (itemAktif.minuman) {
     p.set('ukuran', document.querySelector('input[name=sh_ukuran]:checked').value);

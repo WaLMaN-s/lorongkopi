@@ -1,0 +1,147 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam class {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 12
+}
+title Class Diagram - Sistem Pemesanan Menu Lorong Kopi (Laravel MVC)
+
+package "Middleware" {
+  class MejaAktif {
+    +handle(request, next)
+  }
+  class KasirAuth {
+    +handle(request, next)
+  }
+  class AdminAuth {
+    +handle(request, next)
+  }
+}
+
+package "Controller Pelanggan (Site)" {
+  class MejaController {
+    +masuk(request)
+    +keluar()
+  }
+  class BerandaController {
+    +index(request)
+  }
+  class KeranjangController {
+    +index(request)
+    +aksi(request)
+  }
+  class CheckoutController {
+    +index(request)
+    +proses(request)
+  }
+  class PesananController_Site {
+    +daftar()
+    +lihat(request)
+    +status(request)
+  }
+}
+
+package "Controller Kasir" {
+  class AuthController_Kasir {
+    +login(request)
+    +logout()
+  }
+  class DashboardController_Kasir {
+    +index()
+  }
+  class PesananController_Kasir {
+    +daftar(request)
+    +detail(request)
+    +struk(request)
+  }
+  class PosController {
+    +index(request)
+    +simpan(request)
+  }
+  class NotifikasiController_Kasir {
+    +index(request)
+  }
+}
+
+package "Controller Admin" {
+  class MenuController {
+    +index(request)
+    +simpan(request)
+    +hapus(request)
+  }
+  class MejaController_Admin {
+    +index(request)
+    +cetak()
+    +simpanQr(request)
+  }
+  class LaporanController {
+    +index(request)
+    +excel(request)
+  }
+  class PengaturanController {
+    +index(request)
+  }
+}
+
+package "Model / Entitas" {
+  class Menu {
+    -id : int
+    -kategori_id : int
+    -nama : string
+    -harga : decimal
+    -tanpa_gula : bool
+    -status : enum
+  }
+  class Pesanan {
+    -id : int
+    -nomor_pesanan : string
+    -meja_id : int
+    -total : decimal
+    -status : enum
+  }
+  class PesananItem {
+    -pesanan_id : int
+    -menu_id : int
+    -opsi : string
+    -jumlah : int
+    -harga : decimal
+  }
+  class Pembayaran {
+    -pesanan_id : int
+    -metode : enum
+    -status : enum
+    -tanggal_bayar : datetime
+  }
+  class Meja {
+    -id : int
+    -nomor_meja : string
+    -kode : string
+  }
+}
+
+MejaAktif ..> BerandaController : melindungi
+MejaAktif ..> KeranjangController
+MejaAktif ..> CheckoutController
+KasirAuth ..> DashboardController_Kasir : melindungi
+KasirAuth ..> PosController
+AdminAuth ..> MenuController : melindungi
+AdminAuth ..> LaporanController
+
+MejaController ..> Meja : validasi kode
+BerandaController ..> Menu : membaca
+KeranjangController ..> Menu : membaca
+CheckoutController ..> Pesanan : membuat
+CheckoutController ..> Pembayaran : membuat
+PosController ..> Pesanan : membuat
+PesananController_Kasir ..> Pesanan : mengubah status
+PesananController_Kasir ..> Pembayaran : verifikasi
+PesananController_Site ..> Pesanan : membaca status
+LaporanController ..> Pesanan : rekap
+
+Pesanan "1" *-- "1..*" PesananItem
+Pesanan "1" -- "1" Pembayaran
+Menu "1" -- "0..*" PesananItem
+Meja "1" -- "0..*" Pesanan
+@enduml

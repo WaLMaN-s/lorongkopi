@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantBackgroundColor #FFF8F0
+  ParticipantBorderColor #6F4E37
+  LifeLineBorderColor #6F4E37
+  ArrowColor #4a3526
+  FontSize 12
+}
+title Sequence Diagram - Pemesanan Menu oleh Pelanggan
+
+actor Pelanggan as P
+participant "Browser" as B
+participant "Route\n(web.php)" as R
+participant "MejaController" as MC
+participant "KeranjangController" as KC
+participant "CheckoutController" as CC
+database "Database" as DB
+
+P -> B : Scan QR Code meja
+B -> R : GET /meja.php?kode=xxx
+R -> MC : masuk(request)
+MC -> DB : SELECT meja WHERE kode = ?
+DB --> MC : data meja
+MC -> MC : simpan sesi meja
+MC --> B : redirect halaman menu
+B --> P : tampilkan daftar menu
+
+P -> B : pilih menu + opsi\n(ukuran, penyajian, gula)
+B -> R : POST /keranjang.php (AJAX)
+R -> KC : aksi(request)
+KC -> DB : SELECT menu (harga, tanpa_gula)
+DB --> KC : data menu
+KC -> KC : hitung subtotal,\nsimpan ke session keranjang
+KC --> B : JSON jumlah item
+B --> P : badge keranjang bertambah
+
+P -> B : klik Checkout,\npilih metode (Cash/QRIS)
+B -> R : POST /checkout.php
+R -> CC : proses(request)
+CC -> DB : BEGIN TRANSACTION
+CC -> DB : INSERT pesanan\n(nomor, total, status menunggu)
+CC -> DB : INSERT pesanan_item (per item)
+CC -> DB : INSERT pembayaran\n(metode, belum_dibayar)
+CC -> DB : INSERT notifikasi (pesanan_baru)
+CC -> DB : COMMIT
+DB --> CC : sukses
+CC --> B : redirect pesanan_lihat.php
+B --> P : tampilkan nomor antrian\n+ instruksi pembayaran
+@enduml

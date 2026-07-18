@@ -1,0 +1,52 @@
+@startuml
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 13
+}
+skinparam swimlane {
+  BorderColor #6F4E37
+  TitleFontStyle bold
+}
+title Activity Diagram - Admin
+
+|Admin|
+start
+:Membuka halaman login admin;
+:Input username dan password;
+|Sistem|
+:Verifikasi akun admin;
+if (Login valid?) then (tidak)
+  :Tampilkan pesan gagal login;
+  stop
+else (ya)
+  :Tampilkan dashboard admin\n(grafik penjualan dan ringkasan);
+endif
+|Admin|
+switch (Memilih menu pengelolaan?)
+case (Menu & Kategori)
+  :Tambah / ubah / hapus\nkategori dan menu\n(harga, foto, opsi tanpa gula);
+case (Meja)
+  :Tambah meja dan\ngenerate QR Code;
+  :Mencetak QR Code meja;
+case (Akun Kasir)
+  :Tambah / ubah / hapus\nakun kasir;
+case (Laporan)
+  :Melihat laporan penjualan;
+  :Export laporan ke Excel;
+case (Pengaturan Toko)
+  :Ubah profil toko, logo,\nWiFi, dan gambar QRIS;
+endswitch
+|Sistem|
+:Validasi dan simpan data;
+:Tampilkan pesan berhasil;
+|Admin|
+if (Kelola data lain?) then (ya)
+  :Kembali ke dashboard;
+  detach
+else (tidak)
+  :Logout;
+endif
+stop
+@enduml

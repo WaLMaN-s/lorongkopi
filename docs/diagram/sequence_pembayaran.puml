@@ -1,0 +1,48 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantBackgroundColor #FFF8F0
+  ParticipantBorderColor #6F4E37
+  LifeLineBorderColor #6F4E37
+  ArrowColor #4a3526
+  FontSize 12
+}
+title Sequence Diagram - Verifikasi Pembayaran & Update Status Real-time
+
+actor Kasir as K
+participant "Browser Kasir" as BK
+participant "PesananController\n(Kasir)" as PC
+database "Database" as DB
+participant "Browser Pelanggan" as BP
+actor Pelanggan as P
+
+K -> BK : buka detail pesanan
+BK -> PC : GET kasir/pesanan_detail.php?id=N
+PC -> DB : SELECT pesanan, item, pembayaran
+DB --> PC : data pesanan
+PC --> BK : tampilkan detail
+
+K -> BK : klik Verifikasi Pembayaran
+BK -> PC : POST (aksi verifikasi)
+PC -> DB : UPDATE pembayaran\nSET status = sudah_dibayar
+PC -> DB : INSERT notifikasi (pembayaran)
+DB --> PC : sukses
+PC --> BK : refresh detail (lunas)
+
+K -> BK : ubah status pesanan\n(diproses / siap / selesai)
+BK -> PC : POST (aksi status)
+PC -> DB : UPDATE pesanan SET status = ?
+DB --> PC : sukses
+PC --> BK : status berubah
+
+loop setiap 5 detik (polling)
+  BP -> DB : GET pesanan_status.php?id=N\n(via PesananController.status)
+  DB --> BP : JSON {status, bayar}
+  alt status berubah
+    BP -> BP : location.reload()
+    BP --> P : halaman ter-update otomatis\n(progres + info WiFi bila lunas)
+  else tidak berubah
+    BP -> BP : diam, tunggu 5 detik
+  end
+end
+@enduml

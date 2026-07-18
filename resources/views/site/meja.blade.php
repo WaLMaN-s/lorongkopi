@@ -33,6 +33,10 @@
 
       <?php if ($error): ?><div class="pesan-info pesan-gagal" style="text-align:left"><?= e($error) ?></div><?php endif; ?>
 
+      <a href="index.php" class="btn-garis btn-blok" style="margin-bottom:10px">
+        <i class="bi bi-cup-hot"></i> Lihat Menu Dulu
+      </a>
+
       <details style="text-align:left;margin-top:6px">
         <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--primary)">QR tidak bisa discan? Masukkan kode meja</summary>
         <form method="get" style="margin-top:12px">

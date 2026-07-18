@@ -5,6 +5,7 @@ $mejaSesi   = session('meja', []);
 ?>
 @include('partials.site_top')
 
+<?php if (meja_aktif()): ?>
 <div class="salam-user">
   <span class="salam-emoji">👋</span>
   <div>
@@ -12,6 +13,15 @@ $mejaSesi   = session('meja', []);
     <div class="salam-sub">Meja <?= e($mejaSesi['nomor_meja']) ?> · Mau pesan apa hari ini?</div>
   </div>
 </div>
+<?php else: ?>
+<div class="salam-user">
+  <span class="salam-emoji">👋</span>
+  <div>
+    <div class="salam-teks">Selamat datang di <b><?= e($namaToko) ?></b>!</div>
+    <div class="salam-sub">Silakan lihat-lihat menu · <a href="meja.php" style="color:var(--primary-dark);font-weight:700">Scan QR meja</a> untuk memesan</div>
+  </div>
+</div>
+<?php endif; ?>
 
 <?php if ($q === '' && $fkat === 0): ?>
 <div class="banner-toko">

@@ -1,0 +1,35 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantBackgroundColor #FFF8F0
+  ParticipantBorderColor #6F4E37
+  LifeLineBorderColor #6F4E37
+  ArrowColor #4a3526
+  FontSize 12
+}
+title Sequence Diagram - Login Kasir / Admin
+
+actor "Kasir / Admin" as U
+participant "Browser" as B
+participant "AuthController" as AC
+database "Database" as DB
+
+U -> B : buka halaman login
+B --> U : form login
+
+U -> B : input username & password
+B -> AC : POST login.php
+AC -> DB : SELECT akun WHERE username = ?
+DB --> AC : data akun (hash password)
+AC -> AC : password_verify(input, hash)
+
+alt password cocok
+  AC -> AC : simpan session\n(kasir_id / admin_id)
+  AC --> B : redirect dashboard
+  B --> U : tampilkan dashboard
+else password salah
+  AC -> AC : set flash "gagal login"
+  AC --> B : redirect kembali ke login
+  B --> U : tampilkan pesan gagal
+end
+@enduml

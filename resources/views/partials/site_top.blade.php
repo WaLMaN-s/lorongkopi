@@ -57,6 +57,10 @@ $navLinks = [
       <a href="keluar.php" class="btn-keluar" title="Akhiri sesi meja" onclick="return confirm('Akhiri sesi Meja <?= e($mejaSesi['nomor_meja']) ?>?')">
         <i class="bi bi-table"></i><span class="btn-keluar-teks">Meja <?= e($mejaSesi['nomor_meja']) ?></span>
       </a>
+    <?php else: ?>
+      <a href="meja.php" class="btn-keluar" title="Scan QR meja untuk mulai memesan">
+        <i class="bi bi-qr-code-scan"></i><span class="btn-keluar-teks">Scan Meja</span>
+      </a>
     <?php endif; ?>
   </div>
 </header>

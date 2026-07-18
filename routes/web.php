@@ -24,9 +24,11 @@ Route::get('keluar.php', [MejaController::class, 'keluar']);
 Route::get('masuk.php', fn () => redirect('meja.php'));
 Route::get('daftar.php', fn () => redirect('meja.php'));
 
+/* Beranda/menu bisa dilihat tanpa sesi meja; memesan tetap wajib scan QR. */
+Route::get('/', [BerandaController::class, 'index']);
+Route::get('index.php', [BerandaController::class, 'index']);
+
 Route::middleware('meja')->group(function () {
-    Route::get('/', [BerandaController::class, 'index']);
-    Route::get('index.php', [BerandaController::class, 'index']);
     Route::match(['get', 'post'], 'keranjang.php', [KeranjangController::class, 'index']);
     Route::match(['get', 'post'], 'checkout.php', [CheckoutController::class, 'index']);
     Route::get('pesanan_saya.php', [SitePesananController::class, 'daftar']);

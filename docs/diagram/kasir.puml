@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 13
+}
+skinparam swimlane {
+  BorderColor #6F4E37
+  TitleFontStyle bold
+}
+title Activity Diagram - Kasir
+
+|Kasir|
+start
+:Membuka halaman login kasir;
+:Input username dan password;
+|Sistem|
+:Verifikasi akun kasir;
+if (Login valid?) then (tidak)
+  :Tampilkan pesan gagal login;
+  stop
+else (ya)
+  :Tampilkan dashboard kasir;
+endif
+|Kasir|
+:Menerima notifikasi\npesanan baru (lonceng);
+if (Aktivitas kasir?) then (Kelola pesanan online)
+  :Membuka daftar pesanan;
+  :Melihat detail pesanan;
+  :Verifikasi pembayaran\n(Cash / QRIS);
+  |Sistem|
+  :Ubah status pembayaran\nmenjadi Sudah Dibayar;
+  |Kasir|
+  :Mengubah status pesanan\n(diproses / siap / selesai);
+  |Sistem|
+  :Simpan status baru dan\ntampilkan ke halaman pelanggan\nsecara real-time;
+  |Kasir|
+  :Mencetak struk;
+else (Buat pesanan di POS)
+  :Membuka menu Pesanan Baru (POS);
+  :Memilih menu dan opsi\nuntuk pelanggan offline;
+  :Memproses pembayaran langsung;
+  |Sistem|
+  :Simpan pesanan\ndan pembayaran;
+  |Kasir|
+  :Mencetak struk;
+endif
+:Logout;
+stop
+@enduml

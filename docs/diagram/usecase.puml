@@ -1,0 +1,76 @@
+@startuml
+left to right direction
+skinparam backgroundColor white
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 12
+}
+skinparam packageStyle rectangle
+title Use Case Diagram - Sistem Informasi Pemesanan Menu Lorong Kopi
+
+actor "Pelanggan" as P
+actor "Kasir" as K
+actor "Admin" as A
+
+rectangle "Sistem Pemesanan Menu Lorong Kopi" {
+  ' ---- Pelanggan ----
+  usecase "Scan QR Code Meja" as UC1
+  usecase "Melihat Daftar Menu" as UC2
+  usecase "Mengelola Keranjang" as UC3
+  usecase "Membuat Pesanan\n(Checkout)" as UC4
+  usecase "Memilih Metode Pembayaran\n(Cash / QRIS)" as UC5
+  usecase "Membayar via QRIS\n(input nominal)" as UC6
+  usecase "Memantau Status Pesanan\n(real-time)" as UC7
+  usecase "Membatalkan Pesanan" as UC8
+
+  ' ---- Kasir ----
+  usecase "Login" as UC9
+  usecase "Melihat Notifikasi\nPesanan Baru" as UC10
+  usecase "Mengelola Status Pesanan\n(diproses/siap/selesai)" as UC11
+  usecase "Verifikasi Pembayaran" as UC12
+  usecase "Membuat Pesanan POS\n(pelanggan offline)" as UC13
+  usecase "Mencetak Struk" as UC14
+  usecase "Melihat Pendapatan" as UC15
+
+  ' ---- Admin ----
+  usecase "Mengelola Kategori" as UC16
+  usecase "Mengelola Menu" as UC17
+  usecase "Mengelola Meja &\nGenerate QR Code" as UC18
+  usecase "Mencetak QR Code Meja" as UC19
+  usecase "Mengelola Akun Kasir" as UC20
+  usecase "Melihat Laporan Penjualan" as UC21
+  usecase "Export Laporan Excel" as UC22
+  usecase "Mengelola Pengaturan Toko\n(logo, WiFi, QRIS)" as UC23
+}
+
+P --> UC1
+P --> UC2
+P --> UC3
+P --> UC4
+P --> UC7
+P --> UC8
+
+K --> UC10
+K --> UC11
+K --> UC12
+K --> UC13
+K --> UC14
+K --> UC15
+
+A --> UC16
+A --> UC17
+A --> UC18
+A --> UC20
+A --> UC21
+A --> UC23
+
+UC4 ..> UC5 : <<include>>
+UC6 ..> UC5 : <<extend>>
+UC10 ..> UC9 : <<include>>
+UC16 ..> UC9 : <<include>>
+UC19 ..> UC18 : <<extend>>
+UC22 ..> UC21 : <<extend>>
+UC2 ..> UC1 : <<include>>
+@enduml

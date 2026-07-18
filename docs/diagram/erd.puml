@@ -1,0 +1,137 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 12
+}
+hide circle
+title Entity Relationship Diagram (ERD) - Database lorongkopi_db
+
+entity "admin" as admin {
+  * id : INT <<PK>>
+  --
+  username : VARCHAR(50)
+  password : VARCHAR(255)
+  nama : VARCHAR(100)
+  created_at : DATETIME
+}
+
+entity "kasir" as kasir {
+  * id : INT <<PK>>
+  --
+  username : VARCHAR(50)
+  password : VARCHAR(255)
+  nama : VARCHAR(100)
+  created_at : DATETIME
+}
+
+entity "kategori" as kategori {
+  * id : INT <<PK>>
+  --
+  nama : VARCHAR(100)
+  created_at : DATETIME
+}
+
+entity "menu" as menu {
+  * id : INT <<PK>>
+  --
+  # kategori_id : INT <<FK>>
+  nama : VARCHAR(150)
+  harga : DECIMAL(12,0)
+  deskripsi : TEXT
+  tanpa_gula : TINYINT(1)
+  foto : VARCHAR(255)
+  status : ENUM(aktif, nonaktif)
+  created_at : DATETIME
+}
+
+entity "pelanggan" as pelanggan {
+  * id : INT <<PK>>
+  --
+  nama : VARCHAR(100)
+  email : VARCHAR(100)
+  no_hp : VARCHAR(20)
+  password : VARCHAR(255)
+  created_at : DATETIME
+}
+
+entity "meja" as meja {
+  * id : INT <<PK>>
+  --
+  nomor_meja : VARCHAR(20)
+  kode : VARCHAR(40) <<unique>>
+  status : ENUM(aktif, nonaktif)
+  created_at : DATETIME
+}
+
+entity "pesanan" as pesanan {
+  * id : INT <<PK>>
+  --
+  nomor_pesanan : VARCHAR(30) <<unique>>
+  # pelanggan_id : INT <<FK>>
+  # meja_id : INT <<FK>>
+  nama_tamu : VARCHAR(100)
+  sesi_kode : VARCHAR(40)
+  total : DECIMAL(12,0)
+  status : ENUM(menunggu, diproses,\n siap, selesai, dibatalkan)
+  catatan : TEXT
+  created_at : DATETIME
+}
+
+entity "pesanan_item" as item {
+  * id : INT <<PK>>
+  --
+  # pesanan_id : INT <<FK>>
+  # menu_id : INT <<FK>>
+  opsi : VARCHAR(255)
+  jumlah : INT
+  harga : DECIMAL(12,0)
+}
+
+entity "pembayaran" as bayar {
+  * id : INT <<PK>>
+  --
+  # pesanan_id : INT <<FK>>
+  metode : ENUM(cash, qris)
+  jumlah : DECIMAL(12,0)
+  status : ENUM(belum_dibayar,\n sudah_dibayar, gagal)
+  tanggal_bayar : DATETIME
+  created_at : DATETIME
+}
+
+entity "pengaturan" as pengaturan {
+  * id : INT <<PK>>
+  --
+  nama_toko : VARCHAR(150)
+  logo : VARCHAR(255)
+  banner : VARCHAR(255)
+  alamat : TEXT
+  whatsapp : VARCHAR(25)
+  jam_operasional : VARCHAR(100)
+  deskripsi : TEXT
+  wifi_ssid : VARCHAR(100)
+  wifi_password : VARCHAR(100)
+  qris_gambar : VARCHAR(255)
+}
+
+entity "notifikasi" as notif {
+  * id : INT <<PK>>
+  --
+  tipe : ENUM(pesanan_baru,\n pembayaran, pesanan_batal)
+  pesan : VARCHAR(255)
+  # pesanan_id : INT <<FK>>
+  dibaca : TINYINT(1)
+  created_at : DATETIME
+}
+
+kategori ||--o{ menu : memiliki
+pelanggan ||--o{ pesanan : membuat
+meja ||--o{ pesanan : "dipesan dari"
+pesanan ||--|{ item : berisi
+menu ||--o{ item : "dipilih dalam"
+pesanan ||--|| bayar : "dibayar dengan"
+pesanan ||--o{ notif : memicu
+@enduml

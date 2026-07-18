@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #FFF8F0
+  BorderColor #6F4E37
+  FontSize 13
+}
+skinparam swimlane {
+  BorderColor #6F4E37
+  TitleFontStyle bold
+}
+title Activity Diagram - Pelanggan (Pemesanan Menu)
+
+|Pelanggan|
+start
+:Scan QR Code pada meja;
+|Sistem|
+:Validasi kode meja;
+if (Kode meja valid?) then (tidak)
+  :Tampilkan pesan\nmeja tidak ditemukan;
+  stop
+else (ya)
+  :Aktifkan sesi meja;
+  :Tampilkan halaman menu;
+endif
+|Pelanggan|
+repeat
+  :Memilih menu;
+  :Memilih opsi\n(ukuran, penyajian, gula);
+  :Menambahkan ke keranjang;
+repeat while (Tambah menu lain?) is (ya) not (tidak)
+:Membuka keranjang;
+:Menekan tombol Checkout;
+:Memilih metode pembayaran\n(Cash / QRIS);
+:Menekan tombol Buat Pesanan;
+|Sistem|
+:Simpan pesanan dan\nbuat nomor antrian;
+:Buat data pembayaran\n(status: belum dibayar);
+:Kirim notifikasi ke\nkasir dan admin;
+:Tampilkan halaman\ndetail pesanan;
+|Pelanggan|
+if (Metode pembayaran?) then (QRIS)
+  :Scan gambar QRIS dan\ninput nominal sesuai total;
+  :Tunjukkan bukti bayar\nke kasir;
+else (Cash)
+  :Bayar tunai di kasir;
+endif
+|Sistem|
+:Perbarui status pesanan\nsecara real-time (polling);
+|Pelanggan|
+:Memantau status pesanan\n(menunggu - diproses - siap - selesai);
+:Mengambil pesanan\nsaat status Siap;
+stop
+@enduml
